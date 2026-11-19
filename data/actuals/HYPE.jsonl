@@ -1,0 +1,1 @@
+{"asset": "HYPE", "close": 66.94, "data_source": "Kraken public REST (Ticker + OHLC interval=60) pair=HYPEUSD", "fetched_at_et": "2026-11-18T21:10:11-05:00", "high": 67.29, "hour_et": "2026-11-18T20:00-05:00", "low": 66.43, "open": 67.09, "pair": "HYPEUSD", "trades": 405, "volume": 2866.5579769, "vwap": 66.7}

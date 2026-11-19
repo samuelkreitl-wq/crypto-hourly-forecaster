@@ -1,0 +1,1 @@
+{"asset": "SOL", "close": 73.48, "data_source": "Kraken public REST (Ticker + OHLC interval=60) pair=SOLUSD", "fetched_at_et": "2026-11-18T21:10:10-05:00", "high": 73.8, "hour_et": "2026-11-18T20:00-05:00", "low": 72.86, "open": 73.64, "pair": "SOLUSD", "trades": 1382, "volume": 13380.09730889, "vwap": 73.18}

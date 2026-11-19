@@ -2,55 +2,59 @@
 
 > This is for forecasting and measurement only. It uses Kraken's public market data and places no trades. It holds no API keys and spends nothing. All times are Eastern (America/New_York). This page is regenerated automatically on every scheduler run.
 
-**Last updated:** 2026-11-18T20:14:18-05:00 · **Interactive dashboard:** [open it here](https://htmlpreview.github.io/?https://github.com/samuelkreitl-wq/crypto-hourly-forecaster/blob/main/docs/index.html)
+**Last updated:** 2026-11-18T21:10:11-05:00 · **Interactive dashboard:** [open it here](https://htmlpreview.github.io/?https://github.com/samuelkreitl-wq/crypto-hourly-forecaster/blob/main/docs/index.html)
 
 ## Latest forecasts
 
 | Asset | Kraken spot at run | Spot time (ET) | Forecast close at | Predicted | Range (low–high) | Direction | Confidence | Main factors |
 |---|---|---|---|---|---|---|---|---|
-| **BTC** | $63,077.50 | 2026-11-18 20:11:24-05:00 | 2026-11-18 21:00-05:00 | **$63,060.37** | $62,571.93 – $63,548.82 | SIDEWAYS | 50% | RSI 35 neutral; EMA9 below EMA21 (-0.694%); last hour +0.22%, 3h +1.38%, 24h -2.50% |
-| **ETH** | $1,783.35 | 2026-11-18 20:11:23-05:00 | 2026-11-18 21:00-05:00 | **$1,783.65** | $1,766.83 – $1,800.47 | SIDEWAYS | 50% | RSI 42 neutral; EMA9 below EMA21 (-0.501%); last hour +0.46%, 3h +1.16%, 24h -1.98% |
-| **SOL** | $73.53 | 2026-11-18 20:11:24-05:00 | 2026-11-18 21:00-05:00 | **$73.53** | $72.83 – $74.24 | SIDEWAYS | 50% | RSI 41 neutral; EMA9 below EMA21 (-0.303%); last hour +0.10%, 3h +1.04%, 24h -1.74% |
-| **HYPE** | $67.0600 | 2026-11-18 20:11:25-05:00 | 2026-11-18 21:00-05:00 | **$67.0484** | $66.1854 – $67.9115 | SIDEWAYS | 50% | RSI 40 neutral; EMA9 below EMA21 (-0.767%); last hour +0.33%, 3h +1.62%, 24h -3.37% |
+| **BTC** | $62,658.30 | 2026-11-18 21:10:05-05:00 | 2026-11-18 22:00-05:00 | **$62,587.64** | $62,064.29 – $63,110.99 | SIDEWAYS | 50% | RSI 33 neutral; EMA9 below EMA21 (-0.656%); last hour -0.54%, 3h +0.99%, 24h -2.29% |
+| **ETH** | $1,770.82 | 2026-11-18 21:10:05-05:00 | 2026-11-18 22:00-05:00 | **$1,770.02** | $1,752.54 – $1,787.51 | SIDEWAYS | 50% | RSI 42 neutral; EMA9 below EMA21 (-0.418%); last hour -0.32%, 3h +1.25%, 24h -1.33% |
+| **SOL** | $73.24 | 2026-11-18 21:10:05-05:00 | 2026-11-18 22:00-05:00 | **$73.24** | $72.50 – $73.98 | SIDEWAYS | 50% | RSI 42 neutral; EMA9 below EMA21 (-0.260%); last hour -0.19%, 3h +1.38%, 24h -0.88% |
+| **HYPE** | $66.8600 | 2026-11-18 21:10:01-05:00 | 2026-11-18 22:00-05:00 | **$66.8208** | $65.9441 – $67.6974 | SIDEWAYS | 50% | RSI 40 neutral; EMA9 below EMA21 (-0.680%); last hour -0.22%, 3h +1.64%, 24h -2.52% |
 
 ## Accuracy (scored forecasts only)
 
 | Asset | Window | Scored | MAE $ | MAE % | Direction hit rate | Close inside range |
 |---|---|---|---|---|---|---|
-| BTC | 24h | 0 | — | — | — | — |
-| BTC | 7d | 0 | — | — | — | — |
-| BTC | 30d | 0 | — | — | — | — |
-| ETH | 24h | 0 | — | — | — | — |
-| ETH | 7d | 0 | — | — | — | — |
-| ETH | 30d | 0 | — | — | — | — |
-| SOL | 24h | 0 | — | — | — | — |
-| SOL | 7d | 0 | — | — | — | — |
-| SOL | 30d | 0 | — | — | — | — |
-| HYPE | 24h | 0 | — | — | — | — |
-| HYPE | 7d | 0 | — | — | — | — |
-| HYPE | 30d | 0 | — | — | — | — |
-| Combined | 24h | 0 | — | — | — | — |
-| Combined | 7d | 0 | — | — | — | — |
-| Combined | 30d | 0 | — | — | — | — |
+| BTC | 24h | 1 | $277.67 | 0.442% | 0.0% | 100.0% |
+| BTC | 7d | 1 | $277.67 | 0.442% | 0.0% | 100.0% |
+| BTC | 30d | 1 | $277.67 | 0.442% | 0.0% | 100.0% |
+| ETH | 24h | 1 | $6.4836 | 0.365% | 0.0% | 100.0% |
+| ETH | 7d | 1 | $6.4836 | 0.365% | 0.0% | 100.0% |
+| ETH | 30d | 1 | $6.4836 | 0.365% | 0.0% | 100.0% |
+| SOL | 24h | 1 | $0.0541 | 0.074% | 100.0% | 100.0% |
+| SOL | 7d | 1 | $0.0541 | 0.074% | 100.0% | 100.0% |
+| SOL | 30d | 1 | $0.0541 | 0.074% | 100.0% | 100.0% |
+| HYPE | 24h | 1 | $0.1084 | 0.162% | 100.0% | 100.0% |
+| HYPE | 7d | 1 | $0.1084 | 0.162% | 100.0% | 100.0% |
+| HYPE | 30d | 1 | $0.1084 | 0.162% | 100.0% | 100.0% |
+| Combined | 24h | 4 | (mixed assets) | 0.261% | 50.0% | 100.0% |
+| Combined | 7d | 4 | (mixed assets) | 0.261% | 50.0% | 100.0% |
+| Combined | 30d | 4 | (mixed assets) | 0.261% | 50.0% | 100.0% |
 
 ## Predicted vs actual (last 48 scored hours)
 
-**BTC:** the chart appears once at least 2 forecasts are scored (0 so far).
+**BTC:** the chart appears once at least 2 forecasts are scored (1 so far).
 
-**ETH:** the chart appears once at least 2 forecasts are scored (0 so far).
+**ETH:** the chart appears once at least 2 forecasts are scored (1 so far).
 
-**SOL:** the chart appears once at least 2 forecasts are scored (0 so far).
+**SOL:** the chart appears once at least 2 forecasts are scored (1 so far).
 
-**HYPE:** the chart appears once at least 2 forecasts are scored (0 so far).
+**HYPE:** the chart appears once at least 2 forecasts are scored (1 so far).
 
 ## Recent forecasts with scores
 
 | Asset | Hour (ET) | Start | Predicted | Range | Dir | Actual close | $ error | % error | Dir correct |
 |---|---|---|---|---|---|---|---|---|---|
-| BTC | 2026-11-18 20:00-05:00 | $63,077.50 | $63,060.37 | $62,571.93–$63,548.82 | SIDEWAYS | pending | — | — | pending |
-| ETH | 2026-11-18 20:00-05:00 | $1,783.35 | $1,783.65 | $1,766.83–$1,800.47 | SIDEWAYS | pending | — | — | pending |
-| SOL | 2026-11-18 20:00-05:00 | $73.53 | $73.53 | $72.83–$74.24 | SIDEWAYS | pending | — | — | pending |
-| HYPE | 2026-11-18 20:00-05:00 | $67.0600 | $67.0484 | $66.1854–$67.9115 | SIDEWAYS | pending | — | — | pending |
+| BTC | 2026-11-18 21:00-05:00 | $62,658.30 | $62,587.64 | $62,064.29–$63,110.99 | SIDEWAYS | pending | — | — | pending |
+| ETH | 2026-11-18 21:00-05:00 | $1,770.82 | $1,770.02 | $1,752.54–$1,787.51 | SIDEWAYS | pending | — | — | pending |
+| SOL | 2026-11-18 21:00-05:00 | $73.24 | $73.24 | $72.50–$73.98 | SIDEWAYS | pending | — | — | pending |
+| HYPE | 2026-11-18 21:00-05:00 | $66.8600 | $66.8208 | $65.9441–$67.6974 | SIDEWAYS | pending | — | — | pending |
+| BTC | 2026-11-18 20:00-05:00 | $63,077.50 | $63,060.37 | $62,571.93–$63,548.82 | SIDEWAYS | $62,782.70 | +277.6716 | +0.442% | no |
+| ETH | 2026-11-18 20:00-05:00 | $1,783.35 | $1,783.65 | $1,766.83–$1,800.47 | SIDEWAYS | $1,777.17 | +6.4836 | +0.365% | no |
+| SOL | 2026-11-18 20:00-05:00 | $73.53 | $73.53 | $72.83–$74.24 | SIDEWAYS | $73.48 | +0.0541 | +0.074% | yes |
+| HYPE | 2026-11-18 20:00-05:00 | $67.0600 | $67.0484 | $66.1854–$67.9115 | SIDEWAYS | $66.9400 | +0.1084 | +0.162% | yes |
 
 ## Scheduler
 
@@ -61,6 +65,7 @@
 
 | Started (ET) | Trigger | Min after :00 | Status | New forecasts | Duplicates skipped | Scored | Gaps/errors |
 |---|---|---|---|---|---|---|---|
+| 2026-11-18 21:10:09-05:00 | workflow_dispatch:verify-scoring-21h | 10.17 | ok | BTC,ETH,SOL,HYPE | — | 4 | 0 |
 | 2026-11-18 20:14:17-05:00 | workflow_dispatch:verify-duplicate-prevention | 14.3 | ok | — | BTC,ETH,SOL,HYPE | 0 | 0 |
 | 2026-11-18 20:11:27-05:00 | workflow_dispatch:initial-verification | 11.46 | ok | BTC,ETH,SOL,HYPE | — | 0 | 0 |
 

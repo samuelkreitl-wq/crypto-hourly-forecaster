@@ -1,0 +1,1 @@
+{"asset": "ETH", "close": 1777.17, "data_source": "Kraken public REST (Ticker + OHLC interval=60) pair=ETHUSD", "fetched_at_et": "2026-11-18T21:10:10-05:00", "high": 1788.26, "hour_et": "2026-11-18T20:00-05:00", "low": 1763.53, "open": 1782.95, "pair": "ETHUSD", "trades": 2069, "volume": 1949.34032719, "vwap": 1776.16}
