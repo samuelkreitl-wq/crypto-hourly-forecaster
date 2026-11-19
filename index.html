@@ -1,0 +1,81 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hourly Crypto Forecaster: BTC · ETH · SOL · HYPE</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--b:#30363d;--t:#e6edf3;--m:#8b949e;--up:#3fb950;--dn:#f85149;--sw:#d29922;--ac:#58a6ff}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--t)}
+header{padding:18px 22px;border-bottom:1px solid var(--b)}h1{margin:0;font-size:20px}.sub{color:var(--m);font-size:12px;margin-top:4px}
+main{padding:18px 22px;max-width:1400px;margin:auto}.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.card{background:var(--card);border:1px solid var(--b);border-radius:10px;padding:14px}.card h2{margin:0 0 8px;font-size:15px}
+.big{font-size:26px;font-weight:650}.m{color:var(--m);font-size:12px}.UP{color:var(--up)}.DOWN{color:var(--dn)}.SIDEWAYS{color:var(--sw)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:5px 7px;border-bottom:1px solid var(--b);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}
+th{color:var(--m);font-weight:500}.ok{color:var(--up)}.bad{color:var(--dn)}.tabs button{background:var(--card);color:var(--t);border:1px solid var(--b);padding:6px 12px;border-radius:6px;cursor:pointer;margin-right:6px}
+.tabs button.on{border-color:var(--ac);color:var(--ac)}.scroll{max-height:420px;overflow:auto}section{margin-top:18px}.pill{display:inline-block;padding:1px 7px;border-radius:9px;border:1px solid var(--b);font-size:11px}
+.cal{display:grid;grid-template-columns:90px repeat(24,1fr);gap:2px;font-size:10px}.cal div{height:18px;border-radius:2px;display:flex;align-items:center;justify-content:center}
+</style></head><body>
+<header><h1>Hourly Crypto Forecaster: BTC · ETH · SOL · HYPE</h1>
+<div class="sub">For forecasting and measurement only. It places no trades and uses no keys. Data comes from Kraken's public API, and all times are Eastern (America/New_York). <span id="stamp"></span></div></header>
+<main>
+<div class="grid" id="cards"></div>
+<section class="card"><h2>Accuracy, per asset and combined</h2><div class="m">MAE is mean absolute error of the predicted close against the actual close. Direction is UP/DOWN/SIDEWAYS hit rate. Range is the share of closes inside the predicted range.</div><div id="acc"></div></section>
+<section class="card"><h2>Predicted vs actual</h2><div class="tabs" id="tabs"></div><canvas id="chart" height="110"></canvas></section>
+<section class="card"><h2>Forecast calendar (last 7 days, by ET hour)</h2><div class="m">Green: direction correct · red: wrong · amber: awaiting score · dark: no forecast (missed or gap)</div><div id="cal"></div></section>
+<section class="card"><h2>Forecast history</h2><div class="scroll" id="hist"></div></section>
+<section class="grid"><div class="card"><h2>Scheduler runs</h2><div class="m" id="sched"></div><div class="scroll" id="runs"></div></div>
+<div class="card"><h2>Data gaps, errors, missed runs</h2><div class="scroll" id="gaps"></div></div></section>
+</main>
+<script>
+const A=["BTC","ETH","SOL","HYPE"];let D=null,P=null,sel="BTC",chart=null;
+const fmt=(v,a)=>v==null?"—":"$"+(+v).toLocaleString(undefined,{minimumFractionDigits:a==="BTC"||a==="ETH"?2:a==="SOL"?2:3,maximumFractionDigits:a==="HYPE"?4:2});
+const pct=v=>v==null?"—":(v*100).toFixed(1)+"%";const t=s=>s?s.replace("T"," ").replace(/:00-0[45]:00$|-0[45]:00$/,"")+" ET":"—";
+const PAIRS={BTC:"XBTUSD",ETH:"ETHUSD",SOL:"SOLUSD",HYPE:"HYPEUSD"};
+const DATA_URL="https://raw.githubusercontent.com/samuelkreitl-wq/crypto-hourly-forecaster/main/data/dashboard.json";
+async function prices(){ // live Kraken public Ticker straight from the browser (Kraken allows CORS); read-only, no keys
+ const out={fetched_at_utc:new Date().toISOString(),source:"Kraken public Ticker",prices:{},gaps:[]};
+ await Promise.all(Object.entries(PAIRS).map(async([a,p])=>{try{const j=await (await fetch(`https://api.kraken.com/0/public/Ticker?pair=${p}`,{cache:"no-store"})).json();
+  if(j.error&&j.error.length)throw new Error(j.error.join(","));const x=Object.values(j.result)[0];out.prices[a]={pair:p,last:+x.c[0],bid:+x.b[0],ask:+x.a[0]}}catch(e){out.gaps.push(`${a}: ${e.message}`)}}));
+ return out}
+async function load(){
+ try{P=await prices()}catch(e){P=null}
+ try{D=await (await fetch(DATA_URL+"?t="+Date.now(),{cache:"no-store"})).json()}catch(e){D=null}
+ render()}
+function render(){
+ const now=new Date().toLocaleString("en-US",{timeZone:"America/New_York"});
+ document.getElementById("stamp").textContent=` · Page refreshed ${now} ET · DB export ${D?t(D.generated_at_et):"unavailable"}`;
+ document.getElementById("cards").innerHTML=A.map(a=>{const p=P&&P.prices[a],x=D&&D.assets[a],f=x&&x.latest_forecast;
+  return `<div class="card"><h2>${a}/USD <span class="pill">${x?x.pair:""}</span></h2>
+  <div class="big">${p?fmt(p.last,a):'<span class="bad">feed unavailable</span>'}</div><div class="m">Live Kraken spot as of ${P?new Date(P.fetched_at_utc).toLocaleTimeString("en-US",{timeZone:"America/New_York"})+" ET":"—"}</div>
+  ${f?`<div style="margin-top:10px"><b>Forecast for ${t(f.target_time_et)}</b> (hour starting ${t(f.forecast_hour_et)})<br>
+  Start ${fmt(f.start_price,a)} → <b>${fmt(f.predicted_price,a)}</b> <span class="${f.direction}">${f.direction}</span> · conf ${(f.confidence*100).toFixed(0)}%<br>
+  Range ${fmt(f.predicted_low,a)} – ${fmt(f.predicted_high,a)}<br><span class="m">Made ${t(f.created_at_et)} · ${f.main_factors.slice(0,3).join("; ")}</span></div>`:'<div class="m">No forecast yet</div>'}</div>`}).join("");
+ if(!D)return;
+ const W=["24h","7d","30d"];let h=`<table><tr><th>Asset</th>${W.map(w=>`<th>${w} n</th><th>${w} MAE $</th><th>${w} MAE %</th><th>${w} dir</th><th>${w} range</th>`).join("")}</tr>`;
+ for(const a of [...A,"ALL"]){const m=a==="ALL"?D.combined_metrics:D.assets[a].metrics;
+  h+=`<tr><td><b>${a==="ALL"?"Combined":a}</b></td>${W.map(w=>{const z=m[w]||{n:0};return z.n?`<td>${z.n}</td><td>${a==="ALL"?"(mixed)":fmt(z.mae_usd,a)}</td><td>${z.mae_pct.toFixed(3)}%</td><td>${pct(z.directional_accuracy)}</td><td>${pct(z.range_hit_rate)}</td>`:`<td>0</td><td colspan=4 class="m">no scored forecasts yet</td>`}).join("")}</tr>`}
+ document.getElementById("acc").innerHTML=h+"</table>";
+ document.getElementById("tabs").innerHTML=A.map(a=>`<button class="${a===sel?"on":""}" onclick="sel='${a}';render()">${a}</button>`).join("");
+ const rows=D.assets[sel].history;const labels=rows.map(r=>t(r.target_time_et).replace(" ET",""));
+ const ds=[{label:"Predicted close",data:rows.map(r=>r.predicted_price),borderColor:"#58a6ff",tension:.2},
+  {label:"Actual close",data:rows.map(r=>r.actual_close??null),borderColor:"#3fb950",tension:.2},
+  {label:"Range high",data:rows.map(r=>r.predicted_high),borderColor:"rgba(139,148,158,.5)",borderDash:[4,4],pointRadius:0},
+  {label:"Range low",data:rows.map(r=>r.predicted_low),borderColor:"rgba(139,148,158,.5)",borderDash:[4,4],pointRadius:0}];
+ if(chart)chart.destroy();chart=new Chart(document.getElementById("chart"),{type:"line",data:{labels,datasets:ds},options:{animation:false,plugins:{legend:{labels:{color:"#e6edf3"}}},scales:{x:{ticks:{color:"#8b949e"}},y:{ticks:{color:"#8b949e"}}}}});
+ // calendar
+ const byH={};rows.forEach(r=>byH[r.forecast_hour_et.slice(0,13)]=r);let c=`<div class="cal"><div></div>${[...Array(24).keys()].map(i=>`<div class="m">${i}</div>`).join("")}`;
+ for(let d=6;d>=0;d--){const day=new Date(Date.now()-d*864e5).toLocaleDateString("en-CA",{timeZone:"America/New_York"});c+=`<div class="m">${day}</div>`;
+  for(let i=0;i<24;i++){const r=byH[`${day}T${String(i).padStart(2,"0")}`];const col=!r?"#21262d":r.direction_correct===true?"#238636":r.direction_correct===false?"#da3633":"#9e6a03";
+   c+=`<div title="${r?`${sel} ${r.direction} pred ${fmt(r.predicted_price,sel)} actual ${fmt(r.actual_close,sel)}`:"no forecast"}" style="background:${col}"></div>`}}
+ document.getElementById("cal").innerHTML=c+`</div><div class="m">Showing ${sel}; use the chart tabs to switch assets.</div>`;
+ let hh=`<table><tr><th>Asset</th><th>Hour (ET)</th><th>Start</th><th>Pred</th><th>Low</th><th>High</th><th>Dir</th><th>Conf</th><th>Actual</th><th>$ err</th><th>% err</th><th>Dir ✓</th></tr>`;
+ const all=A.flatMap(a=>D.assets[a].history.map(r=>({...r,a}))).sort((x,y)=>y.forecast_hour_et.localeCompare(x.forecast_hour_et)).slice(0,300);
+ all.forEach(r=>hh+=`<tr><td>${r.a}</td><td>${t(r.forecast_hour_et)}</td><td>${fmt(r.start_price,r.a)}</td><td>${fmt(r.predicted_price,r.a)}</td><td>${fmt(r.predicted_low,r.a)}</td><td>${fmt(r.predicted_high,r.a)}</td><td class="${r.direction}">${r.direction}</td><td>${(r.confidence*100).toFixed(0)}%</td><td>${fmt(r.actual_close,r.a)}</td><td>${r.dollar_error==null?"—":(+r.dollar_error).toFixed(4)}</td><td>${r.pct_error==null?"—":(+r.pct_error).toFixed(3)+"%"}</td><td>${r.direction_correct==null?'<span class="m">pending</span>':r.direction_correct?'<span class="ok">✓</span>':'<span class="bad">✗</span>'}</td></tr>`);
+ document.getElementById("hist").innerHTML=hh+"</table>";
+ const s=D.scheduler;document.getElementById("sched").innerHTML=`${s.platform}<br>cron (UTC): ${s.cron_utc.join(" | ")}<br>${s.note}`;
+ let rr=`<table><tr><th>Started (ET)</th><th>Trigger</th><th>Status</th><th>New</th><th>Dup skip</th><th>Scored</th><th>Gaps</th></tr>`;
+ D.scheduler_runs.slice().reverse().forEach(r=>rr+=`<tr><td>${r.started_at_et.replace("T"," ")}</td><td>${r.trigger.split(":")[0]}</td><td class="${r.status==="ok"?"ok":"bad"}">${r.status}</td><td>${r.forecasts_created.join(",")||"—"}</td><td>${r.duplicates_skipped.join(",")||"—"}</td><td>${r.scores_created}</td><td>${r.gaps.length}</td></tr>`);
+ document.getElementById("runs").innerHTML=rr+"</table>";
+ let g=`<table><tr><th>Asset</th><th>Hour (ET)</th><th>Kind</th><th>Detail</th></tr>`;D.gaps.slice().reverse().forEach(x=>g+=`<tr><td>${x.asset}</td><td>${t(x.hour_et)}</td><td>${x.kind}</td><td style="text-align:left;white-space:normal">${x.detail}</td></tr>`);
+ document.getElementById("gaps").innerHTML=D.gaps.length?g+"</table>":'<div class="m">No gaps logged.</div>';
+}
+load();setInterval(load,60000);
+</script></body></html>
