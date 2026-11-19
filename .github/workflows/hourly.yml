@@ -1,4 +1,7 @@
 name: hourly-forecast
+# BACKUP TRIGGER (best-effort GitHub cron). Primary is the hourly-keeper workflow, which fires at :00 ET.
+# Each backup run (1) restarts the keeper if none is running/queued, (2) runs the forecaster;
+# duplicates are skipped by the asset+forecast_hour key, so a late backup run only fills gaps.
 # schedule registered 2026-11-18 21:12 ET
 # FORECASTING ONLY: public Kraken market data, no API keys, no trading.
 on:
@@ -18,6 +21,7 @@ concurrency:
   cancel-in-progress: false
 permissions:
   contents: write
+  actions: write
 jobs:
   forecast:
     runs-on: ubuntu-latest
@@ -25,23 +29,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main               # always start from the latest committed database
-          fetch-depth: 1
-      - name: Run forecaster (retries with backoff inside)
+          ref: main
+          fetch-depth: 0
+      - name: Ensure primary keeper is alive
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          set -o pipefail
+          alive=$(gh run list --repo "${{ github.repository }}" --workflow keeper.yml --limit 20 --json status --jq '[.[]|select(.status=="in_progress" or .status=="queued" or .status=="pending" or .status=="waiting")]|length' || echo 1)
+          echo "live keeper runs: $alive"
+          if [ "$alive" = "0" ]; then gh workflow run keeper.yml --repo "${{ github.repository }}" --ref main -f reason="restarted by backup cron ${{ github.run_id }}"; echo "keeper re-dispatched"; fi
+      - name: Run forecaster and commit (retries + push-race safe)
+        run: |
           TZ=America/New_York date '+fired at %Y-%m-%d %H:%M:%S %Z'
-          for attempt in 1 2 3; do
-            python3 forecaster/run.py --trigger "${{ github.event_name }}:${{ github.event.schedule || inputs.reason }}" --gh-run "${{ github.run_id }}" && break
-            echo "attempt $attempt failed; backing off"; sleep $((attempt*20))
-          done
-      - name: Append-only guard
-        run: bash forecaster/append_only_guard.sh
-      - name: Commit database
-        run: |
-          git config user.name "forecaster-bot"
-          git config user.email "forecaster-bot@users.noreply.github.com"
-          git add data README.md
-          git commit -m "forecast run $(TZ=America/New_York date '+%Y-%m-%d %H:%M:%S %Z')" || exit 0
-          for i in 1 2 3 4 5; do git push && exit 0; sleep $((i*5)); git pull --rebase origin main; done
-          exit 1
+          bash forecaster/run_and_commit.sh "${{ github.event_name }}:${{ github.event.schedule || inputs.reason }}" "${{ github.run_id }}"

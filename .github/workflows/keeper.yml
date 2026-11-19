@@ -1,0 +1,52 @@
+name: hourly-keeper
+# PRIMARY TRIGGER. GitHub's cron is best-effort (runs arrive 10-60+ min late or are dropped),
+# so this job waits in-process and fires at HH:00:40 America/New_York every hour, for ~5h40m,
+# then dispatches its own successor (workflow_dispatch via GITHUB_TOKEN is allowed to start runs).
+# The hourly-forecast cron workflow is the backup: it re-dispatches this keeper if none is alive.
+# FORECASTING ONLY: public Kraken market data, no API keys, no trading, no spending.
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "why the keeper was started"
+        required: false
+        default: "manual"
+concurrency:
+  group: hourly-keeper           # at most one keeper running; a dispatched successor waits its turn
+  cancel-in-progress: false
+permissions:
+  contents: write
+  actions: write
+jobs:
+  keeper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: main, fetch-depth: 0 }
+      - name: Fire at minute 00 ET every hour
+        env:
+          OFFSET_S: "40"          # seconds after :00 (lets Kraken finalize the just-closed candle)
+          LIFETIME_S: "20400"     # 5h40m, safely below the 6h job limit
+        run: |
+          start=$(date +%s); deadline=$((start + LIFETIME_S))
+          echo "keeper started $(TZ=America/New_York date '+%F %T %Z') (run ${{ github.run_id }}, reason: ${{ inputs.reason }})"
+          # catch-up run at start: fills the current hour if no trigger has recorded it yet (duplicates skipped)
+          bash forecaster/run_and_commit.sh "keeper-start:${{ github.run_id }}" "${{ github.run_id }}" || true
+          while :; do
+            now=$(date +%s)
+            next=$(( (now/3600 + 1)*3600 + OFFSET_S ))     # ET is a whole-hour UTC offset, so UTC :00 == ET :00
+            # if this hour's :00:40 hasn't passed yet and we started before it, use it
+            this=$(( (now/3600)*3600 + OFFSET_S )); [ "$now" -lt "$this" ] && next=$this
+            [ "$next" -gt "$deadline" ] && break
+            echo "sleeping $((next-now))s until $(TZ=America/New_York date -d @$next '+%F %T %Z')"
+            sleep $((next-now))
+            echo "FIRED at $(TZ=America/New_York date '+%F %T %Z')"
+            bash forecaster/run_and_commit.sh "keeper:${{ github.run_id }}" "${{ github.run_id }}" || echo "run failed; will retry next hour (cron backup also active)"
+          done
+          echo "keeper lifetime reached at $(TZ=America/New_York date '+%F %T %Z')"
+      - name: Dispatch successor keeper
+        if: ${{ !cancelled() }}   # cancel the run (or disable the workflow) to stop the chain
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run keeper.yml --repo "${{ github.repository }}" --ref main -f reason="successor of ${{ github.run_id }}"

@@ -295,9 +295,9 @@ def metrics(scores):
 def export_dashboard():
     now = now_utc()
     out = {"generated_at_et": et_str(now), "model_version": MODEL_VERSION, "assets": {},
-           "scheduler": {"platform": "GitHub Actions scheduled workflow `hourly-forecast` in repo samuelkreitl-wq/crypto-hourly-forecaster",
-                         "cron_utc": ["0 * * * *", "10 * * * *", "25 * * * *", "45 * * * *"],
-                         "note": "Primary trigger at minute 00 every hour (00 UTC == 00 ET, whole-hour offset). Backup triggers at :10/:25/:45 recover late/dropped runs; duplicates are skipped by the asset+hour key.",
+           "scheduler": {"platform": "Primary: GitHub Actions workflow `hourly-keeper` (always-on job that fires at HH:00:40 ET and hands off to a successor every ~5h40m). Backup: scheduled workflow `hourly-forecast` (best-effort cron), which also restarts the keeper if it is not running. Repo samuelkreitl-wq/crypto-hourly-forecaster",
+                         "cron_utc": ["keeper: every hour at :00:40", "backup cron: 0 * * * *", "10 * * * *", "25 * * * *", "45 * * * *"],
+                         "note": "One forecast per asset per ET hour (asset+forecast_hour key); late or concurrent triggers are skipped as duplicates. Push races reset to the latest database and re-run.",
                          "timezone_of_records": "America/New_York"}}
     windows = {"24h": 24, "7d": 168, "30d": 720}
     combined = {w: [] for w in windows}
