@@ -1,0 +1,46 @@
+name: hourly-forecast
+# FORECASTING ONLY: public Kraken market data, no API keys, no trading.
+on:
+  schedule:
+    - cron: "0 * * * *"    # primary: minute 00 every hour (00 UTC == 00 America/New_York, whole-hour offset)
+    - cron: "10 * * * *"   # backup triggers: recover a delayed/dropped :00 run;
+    - cron: "25 * * * *"   # duplicates are skipped by the asset+forecast_hour key
+    - cron: "45 * * * *"
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "manual trigger reason"
+        required: false
+        default: "manual"
+concurrency:
+  group: forecaster-run-lock      # run lock: one execution at a time, never cancelled mid-run
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  forecast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main               # always start from the latest committed database
+          fetch-depth: 1
+      - name: Run forecaster (retries with backoff inside)
+        run: |
+          set -o pipefail
+          TZ=America/New_York date '+fired at %Y-%m-%d %H:%M:%S %Z'
+          for attempt in 1 2 3; do
+            python3 forecaster/run.py --trigger "${{ github.event_name }}:${{ github.event.schedule || inputs.reason }}" --gh-run "${{ github.run_id }}" && break
+            echo "attempt $attempt failed; backing off"; sleep $((attempt*20))
+          done
+      - name: Append-only guard
+        run: bash forecaster/append_only_guard.sh
+      - name: Commit database
+        run: |
+          git config user.name "forecaster-bot"
+          git config user.email "forecaster-bot@users.noreply.github.com"
+          git add data
+          git commit -m "forecast run $(TZ=America/New_York date '+%Y-%m-%d %H:%M:%S %Z')" || exit 0
+          for i in 1 2 3 4 5; do git push && exit 0; sleep $((i*5)); git pull --rebase origin main; done
+          exit 1
