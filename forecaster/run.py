@@ -295,7 +295,7 @@ def metrics(scores):
 def export_dashboard():
     now = now_utc()
     out = {"generated_at_et": et_str(now), "model_version": MODEL_VERSION, "assets": {},
-           "scheduler": {"platform": "GitHub Actions (repo samuelkreitl-wq/crypto-hourly-forecaster)",
+           "scheduler": {"platform": "GitHub Actions scheduled workflow `hourly-forecast` in repo samuelkreitl-wq/crypto-hourly-forecaster",
                          "cron_utc": ["0 * * * *", "10 * * * *", "25 * * * *", "45 * * * *"],
                          "note": "Primary trigger at minute 00 every hour (00 UTC == 00 ET, whole-hour offset). Backup triggers at :10/:25/:45 recover late/dropped runs; duplicates are skipped by the asset+hour key.",
                          "timezone_of_records": "America/New_York"}}
@@ -324,6 +324,85 @@ def export_dashboard():
     out["gaps"] = load("gaps")[-200:]
     with open(os.path.join(DATA, "dashboard.json"), "w") as f:
         json.dump(out, f)
+    write_readme(out)
+
+def _p(v, a):
+    if v is None:
+        return "—"
+    return f"${v:,.4f}" if a == "HYPE" or v < 10 else f"${v:,.2f}"
+
+def write_readme(out):
+    """Auto-generated dashboard rendered by GitHub on the repo home page (regenerated every run)."""
+    L = ["# Hourly crypto forecaster: BTC · ETH · SOL · HYPE", "",
+         "> This is for forecasting and measurement only. It uses Kraken's public market data and places no trades. "
+         "It holds no API keys and spends nothing. All times are Eastern (America/New_York). "
+         "This page is regenerated automatically on every scheduler run.", "",
+         f"**Last updated:** {out['generated_at_et']} · **Interactive dashboard:** "
+         "[open it here](https://htmlpreview.github.io/?https://github.com/samuelkreitl-wq/crypto-hourly-forecaster/blob/main/docs/index.html)", "",
+         "## Latest forecasts", "",
+         "| Asset | Kraken spot at run | Spot time (ET) | Forecast close at | Predicted | Range (low–high) | Direction | Confidence | Main factors |",
+         "|---|---|---|---|---|---|---|---|---|"]
+    for a, x in out["assets"].items():
+        f = x["latest_forecast"]
+        if not f:
+            L.append(f"| {a} | — | — | — | — | — | — | — | no forecast yet |"); continue
+        L.append(f"| **{a}** | {_p(f['start_price'], a)} | {f['spot_last_trade_et'].replace('T', ' ')} | {f['target_time_et'].replace('T', ' ')} | "
+                 f"**{_p(f['predicted_price'], a)}** | {_p(f['predicted_low'], a)} – {_p(f['predicted_high'], a)} | {f['direction']} | "
+                 f"{f['confidence']*100:.0f}% | {'; '.join(f['main_factors'][:3])} |")
+    L += ["", "## Accuracy (scored forecasts only)", "",
+          "| Asset | Window | Scored | MAE $ | MAE % | Direction hit rate | Close inside range |", "|---|---|---|---|---|---|---|"]
+    for a in list(out["assets"]) + ["Combined"]:
+        m = out["combined_metrics"] if a == "Combined" else out["assets"][a]["metrics"]
+        for w in ("24h", "7d", "30d"):
+            z = m[w]
+            if not z.get("n"):
+                L.append(f"| {a} | {w} | 0 | — | — | — | — |"); continue
+            mae = "(mixed assets)" if a == "Combined" else _p(z["mae_usd"], a)
+            L.append(f"| {a} | {w} | {z['n']} | {mae} | {z['mae_pct']:.3f}% | {z['directional_accuracy']*100:.1f}% | {z['range_hit_rate']*100:.1f}% |")
+    L += ["", "## Predicted vs actual (last 48 scored hours)", ""]
+    for a, x in out["assets"].items():
+        rows = [r for r in x["history"] if "actual_close" in r][-48:]
+        if len(rows) < 2:
+            L.append(f"**{a}:** the chart appears once at least 2 forecasts are scored ({len(rows)} so far)."); L.append(""); continue
+        lab = ", ".join('"' + r["forecast_hour_et"][11:16] + '"' for r in rows)
+        vals = [r["predicted_price"] for r in rows] + [r["actual_close"] for r in rows]
+        L += ["```mermaid", "xychart-beta", f'    title "{a}: predicted (line 1) vs actual (line 2) close"', f"    x-axis [{lab}]",
+              f"    y-axis \"USD\" {min(vals)*0.999:.4f} --> {max(vals)*1.001:.4f}",
+              "    line [" + ", ".join(f"{r['predicted_price']:.4f}" for r in rows) + "]",
+              "    line [" + ", ".join(f"{r['actual_close']:.4f}" for r in rows) + "]", "```", ""]
+    L += ["## Recent forecasts with scores", "",
+          "| Asset | Hour (ET) | Start | Predicted | Range | Dir | Actual close | $ error | % error | Dir correct |", "|---|---|---|---|---|---|---|---|---|---|"]
+    allrows = sorted(((a, r) for a, x in out["assets"].items() for r in x["history"]), key=lambda t: t[1]["forecast_hour_et"], reverse=True)[:40]
+    for a, r in allrows:
+        sc = "actual_close" in r
+        L.append(f"| {a} | {r['forecast_hour_et'].replace('T', ' ')} | {_p(r['start_price'], a)} | {_p(r['predicted_price'], a)} | "
+                 f"{_p(r['predicted_low'], a)}–{_p(r['predicted_high'], a)} | {r['direction']} | {_p(r.get('actual_close'), a) if sc else 'pending'} | " +
+                 (("%+.4f" % r["dollar_error"]) if sc else "—") + " | " + (("%+.3f%%" % r["pct_error"]) if sc else "—") + " | " + 
+                 f"{('yes' if r['direction_correct'] else 'no') if sc else 'pending'} |")
+    s = out["scheduler"]
+    L += ["", "## Scheduler", "", f"- Platform: {s['platform']}", f"- Cron (UTC): `{' | '.join(s['cron_utc'])}`", f"- {s['note']}",
+          "- Config: [.github/workflows/hourly.yml](.github/workflows/hourly.yml) · Raw run log: [data/scheduler_runs.jsonl](data/scheduler_runs.jsonl)", "",
+          "| Started (ET) | Trigger | Min after :00 | Status | New forecasts | Duplicates skipped | Scored | Gaps/errors |", "|---|---|---|---|---|---|---|---|"]
+    for r in out["scheduler_runs"][::-1][:25]:
+        L.append(f"| {r['started_at_et'].replace('T', ' ')} | {r['trigger']} | {r['minutes_after_hour']} | {r['status']} | {','.join(r['forecasts_created']) or '—'} | "
+                 f"{','.join(r['duplicates_skipped']) or '—'} | {r['scores_created']} | {len(r['gaps'])}{' / ' + '; '.join(r['errors']) if r['errors'] else ''} |")
+    L += ["", "## Data gaps, missed runs and errors", ""]
+    if out["gaps"]:
+        L += ["| Asset | Hour (ET) | Kind | Detail | Logged (ET) |", "|---|---|---|---|---|"]
+        for g in out["gaps"][::-1][:30]:
+            L.append(f"| {g['asset']} | {g['hour_et']} | {g['kind']} | {g['detail']} | {g['logged_at_et']} |")
+    else:
+        L.append("No gaps logged.")
+    L += ["", "## How it works", "",
+          "Every run checks each asset (Kraken pairs XBTUSD, ETHUSD, SOLUSD and HYPEUSD) in four steps:",
+          "1. It scores any earlier forecast whose hour has ended, using that hour's completed Kraken candle close. Missed scoring is caught up on the next run.",
+          "2. It logs any hour from the past 48 that has no forecast as `missed_run`.",
+          "3. If no forecast exists yet for the current ET hour, it fetches Kraken spot, the latest trade time and hourly OHLC. It computes EMA9/21, RSI14, ATR14, realized volatility, momentum and a volume ratio, then saves the forecast for the close at the next :00.",
+          "4. If an asset's feed is unavailable or stale, it logs a gap for that asset only and still forecasts the others.",
+          "",
+          "Records are append-only JSONL in `data/`, keyed by asset. Every run is a git commit, and the workflow fails if any existing line changes. The model is a transparent heuristic (`heuristic-v1`), not financial advice."]
+    with open(os.path.join(ROOT, "README.md"), "w") as f:
+        f.write("\n".join(L) + "\n")
 
 if __name__ == "__main__":
     try:
