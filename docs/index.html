@@ -1,5 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Hourly Crypto Forecaster: BTC · ETH · SOL · HYPE</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 :root{--bg:#0d1117;--card:#161b22;--b:#30363d;--t:#e6edf3;--m:#8b949e;--up:#3fb950;--dn:#f85149;--sw:#d29922;--ac:#58a6ff}
 *{box-sizing:border-box}body{margin:0;font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--t)}
@@ -26,22 +27,24 @@ th{color:var(--m);font-weight:500}.ok{color:var(--up)}.bad{color:var(--dn)}.tabs
 <script>
 const A=["BTC","ETH","SOL","HYPE"];let D=null,P=null,sel="BTC",chart=null;
 const fmt=(v,a)=>v==null?"—":"$"+(+v).toLocaleString(undefined,{minimumFractionDigits:a==="BTC"||a==="ETH"?2:a==="SOL"?2:3,maximumFractionDigits:a==="HYPE"?4:2});
-const pct=v=>v==null?"—":(v*100).toFixed(1)+"%";const t=s=>s?s.replace("T"," ").replace(/-0[45]:00$/,"")+" ET":"—";
-function needChart(){return new Promise(r=>{if(window.Chart)return r();const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js";sc.onload=r;sc.onerror=r;document.head.appendChild(sc)})}
-const RAW="https://raw.githubusercontent.com/samuelkreitl-wq/crypto-hourly-forecaster/main/data/dashboard.json";
+const pct=v=>v==null?"—":(v*100).toFixed(1)+"%";const t=s=>s?s.replace("T"," ").replace(/:00-0[45]:00$|-0[45]:00$/,"")+" ET":"—";
+const PAIRS={BTC:"XBTUSD",ETH:"ETHUSD",SOL:"SOLUSD",HYPE:"HYPEUSD"};
+const DATA_URL="https://raw.githubusercontent.com/samuelkreitl-wq/crypto-hourly-forecaster/main/data/dashboard.json";
+async function prices(){ // live Kraken public Ticker straight from the browser (Kraken allows CORS); read-only, no keys
+ const out={fetched_at_utc:new Date().toISOString(),source:"Kraken public Ticker",prices:{},gaps:[]};
+ await Promise.all(Object.entries(PAIRS).map(async([a,p])=>{try{const j=await (await fetch(`https://api.kraken.com/0/public/Ticker?pair=${p}`,{cache:"no-store"})).json();
+  if(j.error&&j.error.length)throw new Error(j.error.join(","));const x=Object.values(j.result)[0];out.prices[a]={pair:p,last:+x.c[0],bid:+x.b[0],ask:+x.a[0]}}catch(e){out.gaps.push(`${a}: ${e.message}`)}}));
+ return out}
 async function load(){
- // Live display prices: Coinbase Exchange public ticker (Kraken's REST API sends no CORS headers, so a browser page cannot call it).
- // Forecasts and scoring always use Kraken (see data_source on each record).
- const out={fetched_at_utc:new Date().toISOString(),prices:{},gaps:[]};
- await Promise.all(A.map(async a=>{try{const j=await (await fetch(`https://api.exchange.coinbase.com/products/${a}-USD/ticker`,{cache:"no-store"})).json();if(!j.price)throw new Error(j.message||"no price");out.prices[a]={last:+j.price,time:j.time}}catch(e){out.gaps.push(a)}}));P=out;
- try{D=await (await fetch(RAW+"?t="+Date.now(),{cache:"no-store"})).json()}catch(e){D=null}
- render();await needChart();try{drawChart()}catch(e){console.log("chart",e)}}
+ try{P=await prices()}catch(e){P=null}
+ try{D=await (await fetch(DATA_URL+"?t="+Date.now(),{cache:"no-store"})).json()}catch(e){D=null}
+ render()}
 function render(){
  const now=new Date().toLocaleString("en-US",{timeZone:"America/New_York"});
  document.getElementById("stamp").textContent=` · Page refreshed ${now} ET · DB export ${D?t(D.generated_at_et):"unavailable"}`;
  document.getElementById("cards").innerHTML=A.map(a=>{const p=P&&P.prices[a],x=D&&D.assets[a],f=x&&x.latest_forecast;
   return `<div class="card"><h2>${a}/USD <span class="pill">${x?x.pair:""}</span></h2>
-  <div class="big">${p?fmt(p.last,a):'<span class="bad">feed unavailable</span>'}</div><div class="m">Live price from Coinbase as of ${P?new Date(P.fetched_at_utc).toLocaleTimeString("en-US",{timeZone:"America/New_York"})+" ET":"—"}${f?` · Kraken spot at last run ${fmt(f.start_price,a)}`:""}</div>
+  <div class="big">${p?fmt(p.last,a):'<span class="bad">feed unavailable</span>'}</div><div class="m">Live Kraken spot as of ${P?new Date(P.fetched_at_utc).toLocaleTimeString("en-US",{timeZone:"America/New_York"})+" ET":"—"}</div>
   ${f?`<div style="margin-top:10px"><b>Forecast for ${t(f.target_time_et)}</b> (hour starting ${t(f.forecast_hour_et)})<br>
   Start ${fmt(f.start_price,a)} → <b>${fmt(f.predicted_price,a)}</b> <span class="${f.direction}">${f.direction}</span> · conf ${(f.confidence*100).toFixed(0)}%<br>
   Range ${fmt(f.predicted_low,a)} – ${fmt(f.predicted_high,a)}<br><span class="m">Made ${t(f.created_at_et)} · ${f.main_factors.slice(0,3).join("; ")}</span></div>`:'<div class="m">No forecast yet</div>'}</div>`}).join("");
@@ -51,8 +54,12 @@ function render(){
   h+=`<tr><td><b>${a==="ALL"?"Combined":a}</b></td>${W.map(w=>{const z=m[w]||{n:0};return z.n?`<td>${z.n}</td><td>${a==="ALL"?"(mixed)":fmt(z.mae_usd,a)}</td><td>${z.mae_pct.toFixed(3)}%</td><td>${pct(z.directional_accuracy)}</td><td>${pct(z.range_hit_rate)}</td>`:`<td>0</td><td colspan=4 class="m">no scored forecasts yet</td>`}).join("")}</tr>`}
  document.getElementById("acc").innerHTML=h+"</table>";
  document.getElementById("tabs").innerHTML=A.map(a=>`<button class="${a===sel?"on":""}" onclick="sel='${a}';render()">${a}</button>`).join("");
- const rows=D.assets[sel].history;
- try{drawChart()}catch(e){}
+ const rows=D.assets[sel].history;const labels=rows.map(r=>t(r.target_time_et).replace(" ET",""));
+ const ds=[{label:"Predicted close",data:rows.map(r=>r.predicted_price),borderColor:"#58a6ff",tension:.2},
+  {label:"Actual close",data:rows.map(r=>r.actual_close??null),borderColor:"#3fb950",tension:.2},
+  {label:"Range high",data:rows.map(r=>r.predicted_high),borderColor:"rgba(139,148,158,.5)",borderDash:[4,4],pointRadius:0},
+  {label:"Range low",data:rows.map(r=>r.predicted_low),borderColor:"rgba(139,148,158,.5)",borderDash:[4,4],pointRadius:0}];
+ if(chart)chart.destroy();chart=new Chart(document.getElementById("chart"),{type:"line",data:{labels,datasets:ds},options:{animation:false,plugins:{legend:{labels:{color:"#e6edf3"}}},scales:{x:{ticks:{color:"#8b949e"}},y:{ticks:{color:"#8b949e"}}}}});
  // calendar
  const byH={};rows.forEach(r=>byH[r.forecast_hour_et.slice(0,13)]=r);let c=`<div class="cal"><div></div>${[...Array(24).keys()].map(i=>`<div class="m">${i}</div>`).join("")}`;
  for(let d=6;d>=0;d--){const day=new Date(Date.now()-d*864e5).toLocaleDateString("en-CA",{timeZone:"America/New_York"});c+=`<div class="m">${day}</div>`;
@@ -69,13 +76,6 @@ function render(){
  document.getElementById("runs").innerHTML=rr+"</table>";
  let g=`<table><tr><th>Asset</th><th>Hour (ET)</th><th>Kind</th><th>Detail</th></tr>`;D.gaps.slice().reverse().forEach(x=>g+=`<tr><td>${x.asset}</td><td>${t(x.hour_et)}</td><td>${x.kind}</td><td style="text-align:left;white-space:normal">${x.detail}</td></tr>`);
  document.getElementById("gaps").innerHTML=D.gaps.length?g+"</table>":'<div class="m">No gaps logged.</div>';
-}
-function drawChart(){if(!window.Chart||!D)return;const rows=D.assets[sel].history;const labels=rows.map(r=>t(r.target_time_et).replace(" ET",""));
- const ds=[{label:"Predicted close",data:rows.map(r=>r.predicted_price),borderColor:"#58a6ff",tension:.2},
-  {label:"Actual close",data:rows.map(r=>r.actual_close??null),borderColor:"#3fb950",tension:.2},
-  {label:"Range high",data:rows.map(r=>r.predicted_high),borderColor:"rgba(139,148,158,.5)",borderDash:[4,4],pointRadius:0},
-  {label:"Range low",data:rows.map(r=>r.predicted_low),borderColor:"rgba(139,148,158,.5)",borderDash:[4,4],pointRadius:0}];
- if(chart)chart.destroy();chart=new Chart(document.getElementById("chart"),{type:"line",data:{labels,datasets:ds},options:{animation:false,plugins:{legend:{labels:{color:"#e6edf3"}}},scales:{x:{ticks:{color:"#8b949e"}},y:{ticks:{color:"#8b949e"}}}}});
 }
 load();setInterval(load,60000);
 </script></body></html>

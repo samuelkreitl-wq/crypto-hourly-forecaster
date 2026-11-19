@@ -338,7 +338,7 @@ def write_readme(out):
          "It holds no API keys and spends nothing. All times are Eastern (America/New_York). "
          "This page is regenerated automatically on every scheduler run.", "",
          f"**Last updated:** {out['generated_at_et']} · **Interactive dashboard:** "
-         "[open it here](https://htmlpreview.github.io/?https://github.com/samuelkreitl-wq/crypto-hourly-forecaster/blob/main/docs/index.html)", "",
+         "[open it here](https://samuelkreitl-wq.github.io/crypto-hourly-forecaster/)", "",
          "## Latest forecasts", "",
          "| Asset | Kraken spot at run | Spot time (ET) | Forecast close at | Predicted | Range (low–high) | Direction | Confidence | Main factors |",
          "|---|---|---|---|---|---|---|---|---|"]
