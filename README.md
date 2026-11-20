@@ -2,34 +2,34 @@
 
 > This is for forecasting and measurement only. It uses Kraken's public market data and places no trades. It holds no API keys and spends nothing. All times are Eastern (America/New_York). This page is regenerated automatically on every scheduler run.
 
-**Last updated:** 2026-11-20T12:54:54-05:00 · **Interactive dashboard:** [open it here](https://samuelkreitl-wq.github.io/crypto-hourly-forecaster/)
+**Last updated:** 2026-11-20T13:00:27-05:00 · **Interactive dashboard:** [open it here](https://samuelkreitl-wq.github.io/crypto-hourly-forecaster/)
 
 ## Latest forecasts
 
 | Asset | Kraken spot at run | Spot time (ET) | Forecast close at | Predicted | Range (low–high) | Direction | Confidence | Main factors |
 |---|---|---|---|---|---|---|---|---|
-| **BTC** | $59,391.00 | 2026-11-20 12:00:37-05:00 | 2026-11-20 13:00-05:00 | **$59,327.23** | $58,735.97 – $59,918.49 | SIDEWAYS | 50% | RSI 25 oversold -> mean-reversion lift; EMA9 below EMA21 (-1.044%); last hour +0.12%, 3h -3.85%, 24h -5.33% |
-| **ETH** | $1,641.00 | 2026-11-20 12:00:40-05:00 | 2026-11-20 13:00-05:00 | **$1,635.86** | $1,614.15 – $1,657.57 | DOWN | 55% | RSI 25 oversold -> mean-reversion lift; EMA9 below EMA21 (-1.359%); last hour -0.60%, 3h -6.42%, 24h -7.23% |
-| **SOL** | $69.37 | 2026-11-20 12:00:36-05:00 | 2026-11-20 13:00-05:00 | **$69.47** | $68.61 – $70.32 | SIDEWAYS | 50% | RSI 30 oversold -> mean-reversion lift; EMA9 below EMA21 (-1.454%); last hour +1.66%, 3h -2.62%, 24h -5.25% |
-| **HYPE** | $61.7000 | 2026-11-20 12:00:36-05:00 | 2026-11-20 13:00-05:00 | **$61.6585** | $60.7534 – $62.5637 | SIDEWAYS | 50% | RSI 22 oversold -> mean-reversion lift; EMA9 below EMA21 (-2.124%); last hour +0.47%, 3h -2.22%, 24h -8.99% |
+| **BTC** | $59,013.00 | 2026-11-20 13:00:24-05:00 | 2026-11-20 14:00-05:00 | **$58,898.13** | $58,300.44 – $59,495.83 | SIDEWAYS | 50% | RSI 23 oversold -> mean-reversion lift; EMA9 below EMA21 (-1.279%); last hour -0.65%, 3h -4.32%, 24h -5.90% |
+| **ETH** | $1,625.32 | 2026-11-20 13:00:23-05:00 | 2026-11-20 14:00-05:00 | **$1,618.45** | $1,596.37 – $1,640.53 | DOWN | 55% | RSI 24 oversold -> mean-reversion lift; EMA9 below EMA21 (-1.759%); last hour -0.88%, 3h -6.67%, 24h -8.24% |
+| **SOL** | $69.10 | 2026-11-20 13:00:25-05:00 | 2026-11-20 14:00-05:00 | **$69.01** | $68.16 – $69.85 | SIDEWAYS | 50% | RSI 29 oversold -> mean-reversion lift; EMA9 below EMA21 (-1.554%); last hour -0.32%, 3h -2.52%, 24h -6.33% |
+| **HYPE** | $60.9800 | 2026-11-20 13:00:24-05:00 | 2026-11-20 14:00-05:00 | **$60.7301** | $59.8041 – $61.6562 | DOWN | 55% | RSI 20 oversold -> mean-reversion lift; EMA9 below EMA21 (-2.322%); last hour -1.16%, 3h -3.79%, 24h -11.99% |
 
 ## Accuracy (scored forecasts only)
 
 | Asset | Window | Scored | MAE $ | MAE % | Direction hit rate | Close inside range |
 |---|---|---|---|---|---|---|
-| BTC | 24h | 23 | $425.54 | 0.696% | 8.7% | 73.9% |
+| BTC | 24h | 22 | $434.75 | 0.712% | 9.1% | 72.7% |
 | BTC | 7d | 33 | $364.60 | 0.593% | 12.1% | 75.8% |
 | BTC | 30d | 33 | $364.60 | 0.593% | 12.1% | 75.8% |
-| ETH | 24h | 23 | $13.66 | 0.795% | 13.0% | 78.3% |
+| ETH | 24h | 22 | $13.90 | 0.810% | 13.6% | 77.3% |
 | ETH | 7d | 33 | $11.76 | 0.680% | 15.2% | 78.8% |
 | ETH | 30d | 33 | $11.76 | 0.680% | 15.2% | 78.8% |
-| SOL | 24h | 23 | $0.6093 | 0.855% | 26.1% | 73.9% |
+| SOL | 24h | 22 | $0.6248 | 0.877% | 27.3% | 72.7% |
 | SOL | 7d | 33 | $0.5345 | 0.744% | 33.3% | 75.8% |
 | SOL | 30d | 33 | $0.5345 | 0.744% | 33.3% | 75.8% |
-| HYPE | 24h | 23 | $0.6734 | 1.036% | 21.7% | 78.3% |
+| HYPE | 24h | 22 | $0.6848 | 1.055% | 22.7% | 77.3% |
 | HYPE | 7d | 33 | $0.5893 | 0.897% | 27.3% | 78.8% |
 | HYPE | 30d | 33 | $0.5893 | 0.897% | 27.3% | 78.8% |
-| Combined | 24h | 92 | (mixed assets) | 0.845% | 17.4% | 76.1% |
+| Combined | 24h | 88 | (mixed assets) | 0.863% | 18.2% | 75.0% |
 | Combined | 7d | 132 | (mixed assets) | 0.729% | 22.0% | 77.3% |
 | Combined | 30d | 132 | (mixed assets) | 0.729% | 22.0% | 77.3% |
 
@@ -75,6 +75,10 @@ xychart-beta
 
 | Asset | Hour (ET) | Start | Predicted | Range | Dir | Actual close | $ error | % error | Dir correct |
 |---|---|---|---|---|---|---|---|---|---|
+| BTC | 2026-11-20 13:00-05:00 | $59,013.00 | $58,898.13 | $58,300.44–$59,495.83 | SIDEWAYS | pending | — | — | pending |
+| ETH | 2026-11-20 13:00-05:00 | $1,625.32 | $1,618.45 | $1,596.37–$1,640.53 | DOWN | pending | — | — | pending |
+| SOL | 2026-11-20 13:00-05:00 | $69.10 | $69.01 | $68.16–$69.85 | SIDEWAYS | pending | — | — | pending |
+| HYPE | 2026-11-20 13:00-05:00 | $60.9800 | $60.7301 | $59.8041–$61.6562 | DOWN | pending | — | — | pending |
 | BTC | 2026-11-20 12:00-05:00 | $59,391.00 | $59,327.23 | $58,735.97–$59,918.49 | SIDEWAYS | pending | — | — | pending |
 | ETH | 2026-11-20 12:00-05:00 | $1,641.00 | $1,635.86 | $1,614.15–$1,657.57 | DOWN | pending | — | — | pending |
 | SOL | 2026-11-20 12:00-05:00 | $69.37 | $69.47 | $68.61–$70.32 | SIDEWAYS | pending | — | — | pending |
@@ -111,10 +115,6 @@ xychart-beta
 | ETH | 2026-11-20 04:00-05:00 | $1,749.29 | $1,747.96 | $1,730.98–$1,764.94 | SIDEWAYS | $1,744.59 | +3.3675 | +0.193% | no |
 | SOL | 2026-11-20 04:00-05:00 | $72.42 | $72.34 | $71.63–$73.06 | SIDEWAYS | $71.95 | +0.3940 | +0.548% | no |
 | HYPE | 2026-11-20 04:00-05:00 | $65.0500 | $64.8338 | $63.8471–$65.8205 | DOWN | $64.9100 | -0.0762 | -0.117% | no |
-| BTC | 2026-11-20 03:00-05:00 | $61,770.20 | $61,710.41 | $61,174.13–$62,246.69 | SIDEWAYS | $61,766.60 | -56.1906 | -0.091% | yes |
-| ETH | 2026-11-20 03:00-05:00 | $1,750.04 | $1,749.74 | $1,732.28–$1,767.19 | SIDEWAYS | $1,749.25 | +0.4896 | +0.028% | yes |
-| SOL | 2026-11-20 03:00-05:00 | $72.58 | $72.52 | $71.77–$73.27 | SIDEWAYS | $72.46 | +0.0612 | +0.085% | yes |
-| HYPE | 2026-11-20 03:00-05:00 | $66.0100 | $65.9825 | $64.9615–$67.0036 | SIDEWAYS | $65.0600 | +0.9225 | +1.418% | no |
 
 ## Scheduler
 
@@ -125,6 +125,7 @@ xychart-beta
 
 | Started (ET) | Trigger | Min after :00 | Status | New forecasts | Duplicates skipped | Scored | Gaps/errors |
 |---|---|---|---|---|---|---|---|
+| 2026-11-20 13:00:26-05:00 | schedule:45 * * * * | 0.44 | ok | BTC,ETH,SOL,HYPE | — | 0 | 28 |
 | 2026-11-20 12:54:54-05:00 | schedule:25 * * * * | 54.9 | ok | — | BTC,ETH,SOL,HYPE | 0 | 28 |
 | 2026-11-20 12:25:55-05:00 | schedule:0 * * * * | 25.92 | ok | — | BTC,ETH,SOL,HYPE | 0 | 28 |
 | 2026-11-20 12:00:40-05:00 | keeper:44749387900 | 0.68 | ok | BTC,ETH,SOL,HYPE | — | 4 | 28 |
@@ -149,7 +150,6 @@ xychart-beta
 | 2026-11-19 23:00:51-05:00 | keeper-start:44671511289 | 0.85 | ok | — | BTC,ETH,SOL,HYPE | 0 | 28 |
 | 2026-11-19 23:00:41-05:00 | keeper:44633845232 | 0.69 | ok | BTC,ETH,SOL,HYPE | — | 4 | 28 |
 | 2026-11-19 22:00:40-05:00 | keeper:44633845232 | 0.68 | ok | BTC,ETH,SOL,HYPE | — | 4 | 28 |
-| 2026-11-19 21:00:41-05:00 | keeper:44633845232 | 0.68 | ok | BTC,ETH,SOL,HYPE | — | 4 | 28 |
 
 ## Data gaps, missed runs and errors
 
