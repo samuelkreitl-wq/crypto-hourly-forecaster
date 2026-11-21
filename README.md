@@ -2,7 +2,7 @@
 
 > This is for forecasting and measurement only. It uses Kraken's public market data and places no trades. It holds no API keys and spends nothing. All times are Eastern (America/New_York). This page is regenerated automatically on every scheduler run.
 
-**Last updated:** 2026-11-21T11:00:41-05:00 · **Interactive dashboard:** [open it here](https://samuelkreitl-wq.github.io/crypto-hourly-forecaster/)
+**Last updated:** 2026-11-21T11:15:38-05:00 · **Interactive dashboard:** [open it here](https://samuelkreitl-wq.github.io/crypto-hourly-forecaster/)
 
 ## Latest forecasts
 
@@ -125,6 +125,7 @@ xychart-beta
 
 | Started (ET) | Trigger | Min after :00 | Status | New forecasts | Duplicates skipped | Scored | Gaps/errors |
 |---|---|---|---|---|---|---|---|
+| 2026-11-21 11:15:37-05:00 | schedule:25 * * * * | 15.62 | ok | — | BTC,ETH,SOL,HYPE | 0 | 0 |
 | 2026-11-21 11:00:40-05:00 | keeper:44916871939 | 0.68 | ok | BTC,ETH,SOL,HYPE | — | 4 | 0 |
 | 2026-11-21 10:37:56-05:00 | schedule:45 * * * * | 37.94 | ok | — | BTC,ETH,SOL,HYPE | 0 | 0 |
 | 2026-11-21 10:00:52-05:00 | keeper-start:44916871939 | 0.88 | ok | — | BTC,ETH,SOL,HYPE | 0 | 0 |
@@ -149,7 +150,6 @@ xychart-beta
 | 2026-11-20 23:00:41-05:00 | keeper:44840883315 | 0.69 | ok | BTC,ETH,SOL,HYPE | — | 4 | 24 |
 | 2026-11-20 22:00:41-05:00 | keeper:44840883315 | 0.69 | ok | BTC,ETH,SOL,HYPE | — | 4 | 28 |
 | 2026-11-20 21:00:40-05:00 | keeper:44840883315 | 0.67 | ok | BTC,ETH,SOL,HYPE | — | 4 | 28 |
-| 2026-11-20 20:00:40-05:00 | keeper:44840883315 | 0.68 | ok | BTC,ETH,SOL,HYPE | — | 4 | 28 |
 
 ## Data gaps, missed runs and errors
 
